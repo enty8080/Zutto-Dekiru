@@ -38,29 +38,6 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
     def asm(self, code):
         return self.assemble('x64', code)
 
-    @staticmethod
-    def fxsave64(reg):
-        regs = {
-            'rax': b"\x48\x0f\xae\x00",
-            'rbx': b"\x48\x0f\xae\x03",
-            'rcx': b"\x48\x0f\xae\x01",
-            'rdx': b"\x48\x0f\xae\x02",
-            'rsi': b"\x48\x0f\xae\x06",
-            'rdi': b"\x48\x0f\xae\x07",
-            'rbp': b"\x48\x0f\xae\x45\x00",
-            'r8': b"\x49\x0f\xae\x00",
-            'r9': b"\x49\x0f\xae\x01",
-            'r10': b"\x49\x0f\xae\x02",
-            'r11': b"\x49\x0f\xae\x03",
-            'r12': b"\x49\x0f\xae\x04\x24",
-            'r13': b"\x49\x0f\xae\x45\x00",
-            'r14': b"\x49\x0f\xae\x06",
-            'r15': b"\x49\x0f\xae\x07"
-        }
-
-        if reg in regs:
-            return regs[reg]
-
     def nop(self, length, save_registers=[]):
         return self.generate_sled(length, save_registers)
 
@@ -132,7 +109,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
             lea.append(["lea2", self.asm(f"and {reg_env[2]}, {hex(sub)}")])
 
         fpu_lea = self.ordered_random_merge(fpu, lea)
-        fpu_lea.append(["fpu1", self.fxsave(reg_env[0])])
+        fpu_lea.append(["fpu1", f"fxsave64 [{reg_env[0]}]"])
 
         key_ins = [["key", self.asm(f"mov {reg_key}, {hex(key)}")]]
 
