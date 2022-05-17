@@ -149,8 +149,28 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
             if decode_head_tab[i][0] == "fpu":
                 getrip = i
 
-        decode_head = ''.join([str(i) for i in decode_head_tab])
-        # todo
+        decode_head = b''.join([str(i) for _, i in decode_head_tab])
+        flip_coin = random.randint(0, 1)
+
+        if not flip_coin:
+            decode_head += self.asm(f"mov {reg_rip}, [{reg_env[0]} + 0x8]")
+        else:
+            decode_head += self.asm(f"add {reg_env[0]}, 0x8")
+            decode_head += self.asm(f"mov {reg_rip}, [{reg_env[0]}]")
+
+        decode_head_size = len(decode_head)
+        for i in range(0, getrip):
+            decode_head_size -= len(decode_head_tab[i][1])
+
+        loop_code = self.asm(f"dec {reg_size[0]}")
+        loop_code += self.asm(f"xor [{reg_rip} + ({reg_size[0]} * 8) + 0x7f], {reg_key}")
+        loop_code += self.asm(f"test {reg_size[0]}, {reg_size[0]}")
+
+        jnz = b"\x75" + bytes([0x100 - (len(loop_code) + 2)])
+        decode = decode_head + loop_code + jnz
+
+        return decode + self.xor_key_bytes(block, key.encode())
 
     def run(self):
-        
+        key = self.parse_options(self.options)
+        return self.encode_block(self.payload, key)
