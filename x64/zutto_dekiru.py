@@ -10,7 +10,6 @@ import random
 from hatsploit.lib.encoder import Encoder
 
 from pex.string import String
-from pex.poly import LogicalBlock
 from pex.nop import Opty2
 from pex.arch import X86
 
@@ -92,10 +91,10 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
         reg_env = allowed_reg[2]
 
         flip_coin = random.randint(0, 1)
-        fpu_opcode = LogicalBlock('fpu', *self.fpu_instructions())
 
         fpu = []
-        fpu.append(["fpu", fpu_opcode.generate()])
+        fpus = self.fpu_instructions()
+        fpu.append(["fpu", fpus[random.randint(0, len(fpus)-1)]])
 
         sub = (random.randint(0, 0xcff) & 0xfff0) + 0xf000
         lea = []
