@@ -114,7 +114,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
 
         size = []
         size.append(["size", self.asm(f"xor {reg_size[0]}, {reg_size[0]}")])
-        size.append(["size", self.asm(f"mov {reg_size[reg_type]}, {hex(len(block) / 8)}")])
+        size.append(["size", self.asm(f"mov {reg_size[reg_type]}, {hex(int(len(block) / 8))}")])
 
         getrip = 0
 
