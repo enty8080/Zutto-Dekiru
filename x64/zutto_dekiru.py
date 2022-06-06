@@ -142,7 +142,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
         loop_code += self.asm(f"xor [{reg_rip} + ({reg_size[0]} * 8) + 0x7f], {reg_key}")
         loop_code += self.asm(f"test {reg_size[0]}, {reg_size[0]}")
 
-        payload_offset = hex(len(decode_head_size) + 2)
+        payload_offset = hex(decode_head_size + 2)
 
         loop_code = self.asm(f"dec {reg_size[0]}")
         loop_code += self.asm(f"xor [{reg_rip} + ({reg_size[0]} * 8) + {payload_offset}], {reg_key}")
