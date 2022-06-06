@@ -48,7 +48,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
         for i in reversed(filled):
             b.insert(i, a.pop())
 
-        return a
+        return b
 
     def encode_block(self, key, block):
         allowed_reg = [
