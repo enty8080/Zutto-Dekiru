@@ -9,12 +9,13 @@ import random
 
 from hatsploit.lib.encoder import Encoder
 
+from pex.assembler import Assembler
 from pex.string import String
 from pex.nop import Opty2
 from pex.arch import X86
 
 
-class HatSploitEncoder(Encoder, String, Opty2, X86):
+class HatSploitEncoder(Encoder, Assembler, String, Opty2, X86):
     details = {
         'Name': "Zutto Dekiru XOR Encoder",
         'Encoder': "x64/zutto_dekiru",
@@ -22,7 +23,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
             'Ivan Nikolsky (enty8080) - encoder developer'
         ],
         'Description': "Zutto Dekiru encoder for x64.",
-        'Architecture': "x64"
+        'Architecture': "x64",
     }
 
     options = {
@@ -30,7 +31,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
             'Description': "8-byte key to encode.",
             'Value': "P@ssW0rd",
             'Type': None,
-            'Required': True
+            'Required': True,
         }
     }
 
@@ -108,13 +109,13 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
             lea.append(["lea2", self.asm(f"and {reg_env[2]}, {hex(sub)}")])
 
         fpu_lea = self.ordered_random_merge(fpu, lea)
-        fpu_lea.append(["fpu1", f"fxsave64 [{reg_env[0]}]"])
+        fpu_lea.append(["fpu1", self.asm(f"fxsave64 [{reg_env[0]}]")])
 
-        key_ins = [["key", self.asm(f"mov {reg_key}, {hex(key)}")]]
+        key_ins = [["key", self.asm(f"mov {reg_key}, {key[::-1].encode().hex()}")]]
 
         size = []
         size.append(["size", self.asm(f"xor {reg_size[0]}, {reg_size[0]}")])
-        size.append(["size", self.asm(f"mov {reg_size[reg_type]}, {hex(int(len(block) / 8))}")])
+        size.append(["size", self.asm(f"mov {reg_size[reg_type]}, {hex(len(block) / 8)}")])
 
         getrip = 0
 
@@ -125,7 +126,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
             if decode_head_tab[i][0] == "fpu":
                 getrip = i
 
-        decode_head = b''.join([str(i) for _, i in decode_head_tab])
+        decode_head = b''.join(i for _, i in decode_head_tab])
         flip_coin = random.randint(0, 1)
 
         if not flip_coin:
@@ -142,7 +143,7 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
         loop_code += self.asm(f"xor [{reg_rip} + ({reg_size[0]} * 8) + 0x7f], {reg_key}")
         loop_code += self.asm(f"test {reg_size[0]}, {reg_size[0]}")
 
-        payload_offset = hex(decode_head_size + 2)
+        payload_offset = hex(len(decode_head_size) + 2)
 
         loop_code = self.asm(f"dec {reg_size[0]}")
         loop_code += self.asm(f"xor [{reg_rip} + ({reg_size[0]} * 8) + {payload_offset}], {reg_key}")
@@ -155,4 +156,4 @@ class HatSploitEncoder(Encoder, String, Opty2, X86):
 
     def run(self):
         key = self.parse_options(self.options)
-        return self.encode_block(self.payload, key)
+        return self.encode_block(key, self.payload)
