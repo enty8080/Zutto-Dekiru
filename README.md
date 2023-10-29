@@ -4,7 +4,7 @@ Zutto Dekiru is a native HatSploit encoder that represents a XOR encoded shellco
 
 ## Usage
 
-In HatSploit Framework Zutto Dekiru encoder can be selected using `set encoder` command. Zutto Dekiru should be used in chain with payloads, so modules will be able to encoder it and send to the target.
+In HatSploit Framework Zutto Dekiru encoder can be selected using `set encoder` command. Zutto Dekiru should be used in chain with payloads, so modules will be able to encode it and send to the target.
 
 ```
 set encoder x64/zutto_dekiru
