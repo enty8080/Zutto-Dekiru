@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-
-#
-# This payload requires HatSploit: https://hatsploit.netlify.app
-# Current source: https://github.com/EntySec/HatSploit
-#
+"""
+This encoder requires HatSploit: https://hatsploit.com
+Current source: https://github.com/EntySec/HatSploit
+"""
 
 import random
 
-from hatsploit.lib.encoder import Encoder
+from hatsploit.lib.encoder.basic import *
 
 from pex.assembler import Assembler
 from pex.string import String
@@ -16,27 +14,23 @@ from pex.arch import X86
 
 
 class HatSploitEncoder(Encoder, Assembler, String, Opty2, X86):
-    details = {
-        'Name': "Zutto Dekiru XOR Encoder",
-        'Encoder': "x64/zutto_dekiru",
-        'Authors': [
-            'Ivan Nikolsky (enty8080) - encoder developer'
-        ],
-        'Description': "Zutto Dekiru encoder for x64.",
-        'Architecture': "x64",
-    }
+    def __init__(self):
+        super().__init__()
 
-    options = {
-        'KEY': {
-            'Description': "8-byte key to encode.",
-            'Value': "P@ssW0rd",
-            'Type': None,
-            'Required': True,
-        }
-    }
+        self.details.update({
+            'Name': "Zutto Dekiru XOR Encoder",
+            'Encoder': "x64/zutto_dekiru",
+            'Authors': [
+                'Ivan Nikolsky (enty8080) - encoder developer'
+            ],
+            'Description': "Zutto Dekiru encoder for x64.",
+            'Architecture': ARCH_X64,
+        })
+
+        self.key = Option("hatspl64", "8-byte key to encode.", True)
 
     def asm(self, code):
-        return self.assemble('x64', code)
+        return self.assemble(self.details['Arch'], code)
 
     def nop(self, length, save_registers=[]):
         return self.generate_sled(length, save_registers)
